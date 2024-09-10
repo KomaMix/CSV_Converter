@@ -30,7 +30,7 @@ namespace CSV_Converter.Repositories
 
         public async Task<List<Order>> GetOrdersAsync()
         {
-            return await _context.Orders.ToListAsync();
+            return await _context.Orders.Take(100).ToListAsync();
         }
 
         public async Task LoadData(string fileName)

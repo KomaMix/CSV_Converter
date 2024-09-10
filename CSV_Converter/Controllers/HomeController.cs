@@ -31,7 +31,15 @@ namespace CSV_Converter.Controllers
         {
             if (csvFile != null && csvFile.Length > 0)
             {
-                try
+				var extension = Path.GetExtension(csvFile.FileName);
+
+				if (extension != ".csv")
+				{
+					ModelState.AddModelError(string.Empty, "Некорректный формат файла. Пожалуйста, загрузите файл с расширением .csv.");
+					return View();
+				}
+
+				try
                 {
                     string path = Path.Combine(hosting.WebRootPath, "files", csvFile.FileName);
 
@@ -41,6 +49,12 @@ namespace CSV_Converter.Controllers
 					}
 
 					await _orderRepository.LoadData(csvFile.FileName);
+
+					// Удаляем файл после обработки
+					if (System.IO.File.Exists(path))
+					{
+						System.IO.File.Delete(path);
+					}
 
 					return RedirectToAction("UploadSuccess");
 				}
