@@ -1,4 +1,5 @@
 using CSV_Converter.Data;
+using CSV_Converter.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+
+builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+
+builder.WebHost.UseUrls("http://localhost:5000");
+
 var app = builder.Build();
+
 
 
 if (!app.Environment.IsDevelopment())
@@ -20,13 +27,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+
+//app.UseHttpsRedirection();
+
+
 app.UseStaticFiles();
+
 
 app.UseRouting();
 
-app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
+
 
 app.Run();

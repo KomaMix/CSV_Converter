@@ -1,4 +1,6 @@
-﻿namespace CSV_Converter.Models
+﻿using CsvHelper.Configuration.Attributes;
+
+namespace CSV_Converter.Models
 {
     public class Order
     {

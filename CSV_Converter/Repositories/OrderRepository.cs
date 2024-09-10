@@ -1,9 +1,9 @@
 ﻿using CSV_Converter.Data;
 using CSV_Converter.Exceptions;
+using CSV_Converter.Mappers;
 using CSV_Converter.Models;
 using CsvHelper;
 using Microsoft.EntityFrameworkCore;
-using System.Formats.Asn1;
 using System.Globalization;
 
 namespace CSV_Converter.Repositories
@@ -33,29 +33,34 @@ namespace CSV_Converter.Repositories
             return await _context.Orders.ToListAsync();
         }
 
-        public async Task LoadData(IFormFile file)
+        public async Task LoadData(string fileName)
         {
-            if (file == null || file.Length == 0)
-                throw new ArgumentException("Файл пуст или отсутствует");
+            List<Order> orders = new List<Order>();
 
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+			var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "files", fileName);
+
+			using (var reader = new StreamReader(path))
+            using (var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-                try
+                csvReader.Context.RegisterClassMap<OrderMap>();
+                csvReader.Read();
+                csvReader.ReadHeader();
+
+                while (csvReader.Read())
                 {
+                    var order = csvReader.GetRecord<Order>();
 
+					//order.OrderDate = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc);
+					//order.ShipDate = DateTime.SpecifyKind(order.ShipDate, DateTimeKind.Utc);
 
-                    var orders = csv.GetRecords<Order>().ToList();
-
-                    _context.Orders.AddRange(orders);
-
-                    await _context.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Произошла ошибка при обработке CSV файла", ex);
+					orders.Add(order);
                 }
             }
+
+            await _context.Orders.AddRangeAsync(orders);
+            await _context.SaveChangesAsync();
+
+            
         }
     }
 }

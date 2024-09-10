@@ -1,7 +1,21 @@
-﻿@{
-    ViewData["Title"] = "CSV Converter";
-}
+﻿@model List<Order>
 
-<div class="text-center">
-    
-</div>
+<table class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>@nameof(Order.Id)</th>
+			<th>@nameof(Order.OrderPriority)</th>
+			<th>@nameof(Order.Country)</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var order in Model)
+		{
+			<tr>
+				<td>@order.Id</td>
+				<td>@order.OrderPriority</td>
+				<td>@order.Country</td>
+			</tr>
+		}
+	</tbody>
+</table>
